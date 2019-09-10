@@ -95,5 +95,4 @@ def page_not_found(error):
 
 
 if __name__ == '__main__':
-    # listening for incoming network connections
-    app.run(host='0.0.0.0')
+    app.run()
