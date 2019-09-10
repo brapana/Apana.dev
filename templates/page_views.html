@@ -80,8 +80,11 @@
     <script>
       $(document).ready(function() {
         $('#pageViewTable').DataTable( {
-            "order": [[ 0, "desc"]],
-            "lengthMenu": [5, 10, 15]
+            "order": [[ 2, "desc"]],
+            "lengthMenu": [10, 15, 20],
+            "columnDefs": [
+              {"orderable":false, "targets": 0}
+            ]
         } );
       } );
     </script>
