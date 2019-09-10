@@ -30,12 +30,12 @@
                     {% for page_view in all_page_views %}
                       <tr>
                           {% if page_view.ip_address == client_IP %}
-                              <td>{{ page_view.view_num }} [You]</td>
+                              <td data-sort="{{ page_view.view_num }}">{{ page_view.view_num }} [You]</td>
                           {% else %}
-                              <td>{{ page_view.view_num }}</td>
+                              <td data-sort="{{ page_view.view_num }}">{{ page_view.view_num }}</td>
                           {% endif %}
                           <td>{{ page_view.location }}</td>
-                          <td>{{ page_view.time_stamp.strftime('%I:%M %p %m-%d-%Y') }}</td>
+                          <td data-sort="{{ page_view.time_stamp.strftime('%Y%m%d%H%M%s') }}">{{ page_view.time_stamp.strftime('%I:%M %p %m-%d-%Y') }}</td>
                       </tr>
                     {% endfor %}
                   </tbody>
@@ -80,11 +80,8 @@
     <script>
       $(document).ready(function() {
         $('#pageViewTable').DataTable( {
-            "order": [[ 2, "desc"]],
-            "lengthMenu": [10, 15, 20],
-            "columnDefs": [
-              {"orderable":false, "targets": 0}
-            ]
+            "order": [[ 0, "desc"]],
+            "lengthMenu": [10, 15, 20]
         } );
       } );
     </script>
