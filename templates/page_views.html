@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+
+
+{% block head_css %}
+    {{ super() }}
+
+    <!-- Datatables CSS import -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
+
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-12">
+          <h1>Website Views</h1>
+
+          {% if all_page_views %}
+          <table id="pageViewTable" class="table table-striped table-bordered" style="width:100%">
+                  <thead>
+                      <tr>
+                          <th>Visit #</th>
+                          <th>Approximate Location</th>
+                          <th>Timestamp (PST)</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                    {% for page_view in all_page_views %}
+                      <tr>
+                          {% if page_view.ip_address == client_IP %}
+                              <td>{{ page_view.view_num }} [You]</td>
+                          {% else %}
+                              <td>{{ page_view.view_num }}</td>
+                          {% endif %}
+                          <td>{{ page_view.location }}</td>
+                          <td>{{ page_view.time_stamp.strftime('%I:%M %p %m-%d-%Y') }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                  <!-- <tfoot>
+                      <tr>
+                          <th>Visit #</th>
+                          <th>Approximate Location</th>
+                          <th>Timestamp (PST)</th>
+                      </tr>
+                  </tfoot> -->
+              </table>
+
+        {% endif %}
+
+
+        </div>
+      </div>
+      <br>
+
+      <div class="row">
+        <div class="col-sm-12">
+          <p class="text-center">This product includes GeoLite2 data created by MaxMind, available from
+          <a href="https://www.maxmind.com">https://www.maxmind.com</a>.</p>
+        </div>
+      </div>
+
+    </div>
+    <br><br>
+
+{% endblock %}
+
+
+{% block tail_js %}
+
+    {{ super() }}
+
+    <!-- Datatables imports -->
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+
+    <!-- datatables js -->
+    <script>
+      $(document).ready(function() {
+        $('#pageViewTable').DataTable( {
+            "order": [[ 0, "desc"]],
+            "lengthMenu": [5, 10, 15]
+        } );
+      } );
+    </script>
+
+{% endblock %}

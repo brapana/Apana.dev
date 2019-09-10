@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block title %}
+<title>Flask Project - 404</title>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+          <div class="col text-center">
+              <h1>404 - You weren't supposed to do that!</h1>
+          </div>
+
+        </div>
+
+        <div class="row">
+          <div class="col text-center">
+              <img src="{{ url_for('static', filename='images/404.jpg') }}" class="rounded" alt="big sad">
+          </div>
+
+        </div>
+
+        <div class="row">
+          <div class="col text-center">
+              <a href="{{ url_for('home_page') }}" class="btn btn-primary" role="button">Take me home, country roads</a>
+          </div>
+
+        </div>
+
+    </div>
+    <br><br>
+{% endblock %}
