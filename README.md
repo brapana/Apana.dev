@@ -1,5 +1,5 @@
 # Flask Project
-In-Progress multi-purpose project utilizing Python3, Flask, Bootstrap4, Datatables, and PostgreSQL.
+In-progress multi-purpose project utilizing Python3, Flask, Bootstrap4, Datatables, PostgreSQL, and the Spotify API.
 Stay tuned for updates. 
 
 
