@@ -11,7 +11,7 @@ Stay tuned for updates.
 
 # Usage:
 
-Create a file named secrets.py at the root of the project folder (alongside app.py) coontaining the following lines:
+Create a file named secrets.py at the root of the project folder (alongside app.py) containing the following lines:
 
 ```
 DATABASE_URL="postgresql://db_username:db_password@localhost/db_name"
