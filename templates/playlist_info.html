@@ -1,0 +1,106 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container">
+
+
+  <div class="row">
+    <div class="col-sm-12">
+      <h1 class="display-4">Playlist Information</h1>
+    </div>
+  </div>
+
+
+  <div class="row">
+    <div class="col-sm-12 text-center">
+        <div class="card text-white bg-dark mb-3 mx-auto" style="max-width: 80rem;">
+
+            <div class="card-body">
+                <h5 class="card-title">Enter a Spotify username below to view public playlists</h5>
+                <br>
+
+                {% if user_info %}
+                    {% if user_info['images'] %}
+                        <img src="{{ user_info['images'][0]['url'] }}" class="img-fluid rounded-circle" style="max-height: 200px;" alt="User Profile Picture">
+                    {% else %}
+                        <br>
+                        <p class="card-text">No User Profile Picture</p>
+                    {% endif %}
+                    <br><br>
+                    <p class="card-text">Hi, {{ user_info['display_name'] }}!</p>
+                {% endif %}
+
+
+                <form role="form" method="POST">
+
+                    <div class="form-group row justify-content-center">
+                        <div class="col-xs-3">
+                            {% if user_info %}
+                                <input type="text" name="username" class="form-control form-control-lg" id="username-box" style="text-align:center;" placeholder="Enter Spotify Username..." value="{{ user_info['id'] }}">
+                            {% else %}
+                                <input type="text" name="username" class="form-control form-control-lg" id="username-box" style="text-align:center;" placeholder="Enter Spotify Username...">
+                            {% endif %}
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </div>
+                    <br>
+
+                    {% if playlist_stats %}
+
+                        <div class="row justify-content-center">
+                            <div class="col-xs-6 my-auto">
+                                <img src="{{ playlist_stats['cover_image'] }}" class="img-fluid rounded border" style="max-height: 180px;" alt="Playlist Cover Image">
+                            </div>
+                            <hr style="margin: 20px">
+                            <div class="col-xs-6 my-auto">
+                                <p class="card-text">
+                                "{{ playlist_stats['name'] }}" Statistics:<br><br>
+                                Average Track Length: {{ "%.2f" | format(playlist_stats['avg_track_length'] / 60000.0) }} min<br>
+                                Average Track Popularity: {{ "%.2f" | format(playlist_stats['avg_popularity']) }}%<br>
+                                Average Track Release Year: {{ playlist_stats['avg_release_year'] }}<br>
+                                Explicit Tracks: {{ playlist_stats['num_explicit'] }}/{{playlist_stats['num_tracks']}} = {{ "%.2f" | format(100 * playlist_stats['num_explicit'] / playlist_stats['num_tracks']) }}%
+                                </p>
+                            </div>
+                        </div>
+
+                        <br><br>
+                    {% endif %}
+
+
+                    {% if user_playlists %}
+
+                        <div class="row" style="line-height: 3.3">
+
+                            {% for playlist in user_playlists %}
+
+                                <div class="col-lg-3 col-md-4 col-sm-6 text-center">
+                                    <button type="submit" class="btn" name="playlist_selection" value="{{ playlist['id'] }}" style="border: none; padding: 0;">
+                                        <img src="{{ playlist['cover_image'] }}" class="img-fluid rounded" style="max-height: 180px;" alt="Playlist Cover Image">
+                                    </button>
+                                    {% if playlist['name'] | length > 22 %}
+                                        <p class="card-text">{{ playlist['name'][:22] }} ...</p>
+                                    {% else %}
+                                        <p class="card-text">{{ playlist['name'] }}</p>
+                                    {% endif %}
+                                </div>
+
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                </form>
+
+
+
+            </div>
+        </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<br><br>
+{% endblock %}

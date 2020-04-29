@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container">
+
+  <br>
+
+  <div class="row">
+    <div class="col-sm-12">
+      <h1 class="text-center">Get Album Art</h1>
+    </div>
+  </div>
+
+
+  <br><br>
+  <div class="row">
+    <div class="col-lg-12 text-center">
+        <div class="card text-white bg-dark mb-3 mx-auto" style="max-width: 40rem;">
+
+            <div class="card-body">
+                <h5 class="card-title">Get Album Art</h5>
+                <br>
+                <img src={{album_art}} class="img-fluid rounded" style="max-height: 200px;" alt="Album Art">
+                <br><br>
+                <p class="card-text">Above is the album artwork</p>
+            </div>
+        </div>
+
+    </div>
+
+  </div>
+
+
+<br><br>
+{% endblock %}
