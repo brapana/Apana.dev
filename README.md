@@ -19,7 +19,6 @@ APP_SETTINGS="config.{TestingConfig|DevelopmentConfig|StagingConfig|ProductionCo
 SECRET_KEY="Your Secret Key Here" (set a key unique to you)
 SPOTIFY_CLIENT_ID="Your Spotify API Client ID Here"
 SPOTIFY_CLIENT_SECRET="Your Spotify API Client Secret Here"
-
 ```
 
 Install Dependencies:
