@@ -31,15 +31,15 @@ client_credentials_manager = SpotifyClientCredentials(client_id=secrets.SPOTIFY_
 spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
 
-app = Flask(__name__)
-app.config.from_object(secrets.APP_SETTINGS)
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+application = Flask(__name__)
+application.config.from_object(secrets.APP_SETTINGS)
+application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(application)
 
 from models import *
 
 
-@app.before_request
+@application.before_request
 def before_request():
     '''
     Tracks website visits (accesses from unique IPs with a cooldown of 30 minutes)
@@ -84,7 +84,7 @@ def before_request():
         db.session.commit()
 
 
-@app.route('/', methods=['GET'])
+@application.route('/', methods=['GET'])
 def home_page():
     '''
     Home page for Flask Project, displays a welcome message
@@ -93,7 +93,7 @@ def home_page():
     return render_template('index.html')
 
 
-@app.route('/page_views', methods=['GET'])
+@application.route('/page_views', methods=['GET'])
 def page_views():
     '''
     Displays the view number, location, and timestamp of every web page view
@@ -106,7 +106,7 @@ def page_views():
     return render_template('page_views.html', all_page_views=all_page_views, client_IP=client_IP)
 
 
-@app.route('/album_art/<query>', methods=['GET', 'POST'])
+@application.route('/album_art/<query>', methods=['GET', 'POST'])
 def get_album_art(query):
     '''
     Given a search query, returns a downloadable album art image from Spotify.
@@ -127,7 +127,7 @@ def get_album_art(query):
     return render_template('get_album_art.html', album_art=album_art)
 
 
-@app.route('/playlist_info', methods=['GET', 'POST'])
+@application.route('/playlist_info', methods=['GET', 'POST'])
 def playlist_info():
     '''
     Given a Spotify username and selecting a playlist, display stats about it.
@@ -233,10 +233,10 @@ def playlist_info():
                                        playlist_stats=playlist_stats)
 
 
-@app.errorhandler(404)
+@application.errorhandler(404)
 def page_not_found(error):
     return render_template('page_not_found.html'), 404
 
 
-if __name__ == '__main__':
-    app.run()
+#if __name__ == '__main__':
+#    application.run(host='0.0.0.0', port=80)

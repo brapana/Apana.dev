@@ -17,3 +17,5 @@ class PageViews(db.Model):
     def __repr__(self):
         return '<View #{} from {} [{}] at {}>'.format(self.view_num, self.location,
                                                 self.ip_address, self.time_stamp)
+
+db.create_all()
