@@ -56,7 +56,7 @@ def before_request():
 
 
     # if this IP address has never visited the home page before, or if it has been 30 min since its last visit...
-    if not latest_access or latest_access.time_stamp < datetime.now()-timedelta(minutes=30):
+    if not latest_access or latest_access.time_stamp < datetime.utcnow()-timedelta(minutes=30):
 
         # gather location results based on client's IP address
         try:
@@ -77,7 +77,7 @@ def before_request():
 
 
         newPageView = PageViews(ip_address=client_IP, location=location,
-                                time_stamp = datetime.now())
+                                time_stamp = datetime.utcnow())
 
 
         db.session.add(newPageView)
