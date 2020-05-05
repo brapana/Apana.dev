@@ -13,7 +13,6 @@ from datetime import timedelta
 # Python file containing credentials
 import secrets
 
-
 # matching IP address to location
 import geoip2.database
 
@@ -21,9 +20,15 @@ import geoip2.database
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 
+# tarfile extraction (for GeoLite database)
+import tarfile
 
-# initialize GeoLite database for matching IP addresses and location
-geoip_reader = geoip2.database.Reader('./geoipDB/GeoLite2-City.mmdb')
+# file downloader (for GeoLite database)
+import urllib.request
+
+
+# initialize GeoLite database to empty object
+geoip_reader = None
 
 
 # initialize Spotify API wrapper
@@ -37,6 +42,38 @@ application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(application)
 
 from models import *
+
+
+@application.before_first_request
+def before_first_request():
+    '''
+    Download, extract, and initialize GeoLite database for matching IP addresses
+    and location, this is run on server start (before first request).
+    '''
+
+    global geoip_reader
+
+    urllib.request.urlretrieve(secrets.GEOIP2_DB_PERMALINK, "GeoLite2-City.tar.gz")
+
+    tar = tarfile.open("GeoLite2-City.tar.gz", "r")
+
+    # extract only the .mmdb GeoLite database from the .tar.gz into geoipDB folder
+    names = tar.getnames()
+
+    name = [i for i in names if i.endswith(".mmdb")][0]
+
+    member = tar.getmember(name)
+    member.name = "geoipDB/GeoLite2-City.mmdb"
+
+    tar.extract(member)
+
+    tar.close()
+
+    # delete tar when done with extraction
+    if os.path.exists("GeoLite2-City.tar.gz"):
+        os.remove("GeoLite2-City.tar.gz")
+
+    geoip_reader = geoip2.database.Reader('./geoipDB/GeoLite2-City.mmdb')
 
 
 @application.before_request
