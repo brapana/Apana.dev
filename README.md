@@ -20,7 +20,6 @@ SECRET_KEY="Your Secret Key Here" (set a key unique to you)
 SPOTIFY_CLIENT_ID="Your Spotify API Client ID Here"
 SPOTIFY_CLIENT_SECRET="Your Spotify API Client Secret Here"
 GEOIP2_DB_PERMALINK="Permalink to Maxmind's GeoIP2 DB (requires license)"
-
 ```
 
 Install Dependencies:
