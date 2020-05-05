@@ -61,9 +61,9 @@ def before_request():
         # gather location results based on client's IP address
         try:
             geoip_results = geoip_reader.city(client_IP)
-            country_name = geoip_results.country.name
-            area_name = geoip_results.subdivisions.most_specific.name
-            city_name = geoip_results.city.name
+            country_name = geoip_results.country.name if geoip_results.country.name else "Unknown"
+            area_name = geoip_results.subdivisions.most_specific.name if geoip_results.subdivisions.most_specific.name else "Unknown"
+            city_name = geoip_results.city.name if geoip_results.city.name else "Unknown"
             location = '{}, {}, {}'.format(city_name, area_name, country_name)
 
         # if client's IP address is not in the GeoLite2 database fill in location value
