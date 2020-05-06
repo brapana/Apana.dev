@@ -13,7 +13,6 @@ from datetime import timedelta
 # Python file containing credentials
 import secrets
 
-
 # matching IP address to location
 import geoip2.database
 
@@ -21,9 +20,15 @@ import geoip2.database
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 
+# tarfile extraction (for GeoLite database)
+import tarfile
 
-# initialize GeoLite database for matching IP addresses and location
-geoip_reader = geoip2.database.Reader('./geoipDB/GeoLite2-City.mmdb')
+# file downloader (for GeoLite database)
+import urllib.request
+
+
+# initialize GeoLite database to empty object
+geoip_reader = None
 
 
 # initialize Spotify API wrapper
@@ -31,15 +36,47 @@ client_credentials_manager = SpotifyClientCredentials(client_id=secrets.SPOTIFY_
 spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
 
-app = Flask(__name__)
-app.config.from_object(secrets.APP_SETTINGS)
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+application = Flask(__name__)
+application.config.from_object(secrets.APP_SETTINGS)
+application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(application)
 
 from models import *
 
 
-@app.before_request
+@application.before_first_request
+def before_first_request():
+    '''
+    Download, extract, and initialize GeoLite database for matching IP addresses
+    and location, this is run on server start (before first request).
+    '''
+
+    global geoip_reader
+
+    urllib.request.urlretrieve(secrets.GEOIP2_DB_PERMALINK, "GeoLite2-City.tar.gz")
+
+    tar = tarfile.open("GeoLite2-City.tar.gz", "r")
+
+    # extract only the .mmdb GeoLite database from the .tar.gz into geoipDB folder
+    names = tar.getnames()
+
+    name = [i for i in names if i.endswith(".mmdb")][0]
+
+    member = tar.getmember(name)
+    member.name = "geoipDB/GeoLite2-City.mmdb"
+
+    tar.extract(member)
+
+    tar.close()
+
+    # delete tar when done with extraction
+    if os.path.exists("GeoLite2-City.tar.gz"):
+        os.remove("GeoLite2-City.tar.gz")
+
+    geoip_reader = geoip2.database.Reader('./geoipDB/GeoLite2-City.mmdb')
+
+
+@application.before_request
 def before_request():
     '''
     Tracks website visits (accesses from unique IPs with a cooldown of 30 minutes)
@@ -56,14 +93,14 @@ def before_request():
 
 
     # if this IP address has never visited the home page before, or if it has been 30 min since its last visit...
-    if not latest_access or latest_access.time_stamp < datetime.now()-timedelta(minutes=30):
+    if not latest_access or latest_access.time_stamp < datetime.utcnow()-timedelta(minutes=30):
 
         # gather location results based on client's IP address
         try:
             geoip_results = geoip_reader.city(client_IP)
-            country_name = geoip_results.country.name
-            area_name = geoip_results.subdivisions.most_specific.name
-            city_name = geoip_results.city.name
+            country_name = geoip_results.country.name if geoip_results.country.name else "Unknown"
+            area_name = geoip_results.subdivisions.most_specific.name if geoip_results.subdivisions.most_specific.name else "Unknown"
+            city_name = geoip_results.city.name if geoip_results.city.name else "Unknown"
             location = '{}, {}, {}'.format(city_name, area_name, country_name)
 
         # if client's IP address is not in the GeoLite2 database fill in location value
@@ -77,14 +114,14 @@ def before_request():
 
 
         newPageView = PageViews(ip_address=client_IP, location=location,
-                                time_stamp = datetime.now())
+                                time_stamp = datetime.utcnow())
 
 
         db.session.add(newPageView)
         db.session.commit()
 
 
-@app.route('/', methods=['GET'])
+@application.route('/', methods=['GET'])
 def home_page():
     '''
     Home page for Flask Project, displays a welcome message
@@ -93,7 +130,7 @@ def home_page():
     return render_template('index.html')
 
 
-@app.route('/page_views', methods=['GET'])
+@application.route('/page_views', methods=['GET'])
 def page_views():
     '''
     Displays the view number, location, and timestamp of every web page view
@@ -106,7 +143,7 @@ def page_views():
     return render_template('page_views.html', all_page_views=all_page_views, client_IP=client_IP)
 
 
-@app.route('/album_art/<query>', methods=['GET', 'POST'])
+@application.route('/album_art/<query>', methods=['GET', 'POST'])
 def get_album_art(query):
     '''
     Given a search query, returns a downloadable album art image from Spotify.
@@ -127,7 +164,7 @@ def get_album_art(query):
     return render_template('get_album_art.html', album_art=album_art)
 
 
-@app.route('/playlist_info', methods=['GET', 'POST'])
+@application.route('/playlist_info', methods=['GET', 'POST'])
 def playlist_info():
     '''
     Given a Spotify username and selecting a playlist, display stats about it.
@@ -150,18 +187,11 @@ def playlist_info():
         if 'playlist_selection' in request.form:
             selected_playlist = request.form['playlist_selection']
 
-
             # gather information on the selected playlist, only request fields we need
             user_playlist = spotify.user_playlist(username, selected_playlist,
                                                   fields='tracks.items(track(duration_ms, \
                                                   explicit, popularity, album(release_date))), \
                                                   tracks(total, next), images, name')
-
-
-
-            print(selected_playlist)
-
-
 
 
             playlist_stats = {'avg_track_length': 0.0, 'num_explicit': 0,
@@ -173,7 +203,6 @@ def playlist_info():
 
 
             counter = 1
-
 
             # Spotify API only returns 100 songs at a time, check for the presence
             # of more tracks after processing current batch and continue until complete
@@ -225,18 +254,16 @@ def playlist_info():
 
 
 
-
-
-
     return render_template('playlist_info.html', user_info=user_info,
                                        user_playlists=user_playlists,
                                        playlist_stats=playlist_stats)
 
 
-@app.errorhandler(404)
+@application.errorhandler(404)
 def page_not_found(error):
     return render_template('page_not_found.html'), 404
 
 
-if __name__ == '__main__':
-    app.run()
+# uncomment below to run app.py locally without WSGI engine
+# if __name__ == '__main__':
+#    application.run(host='0.0.0.0', port=80)
