@@ -6,7 +6,7 @@
 
   <div class="row">
     <div class="col-sm-12">
-      <h1 class="display-4">Playlist Information</h1>
+      <h1 class="display-4">Spotify Playlist Information</h1>
     </div>
   </div>
 
@@ -16,20 +16,22 @@
         <div class="card text-white bg-dark mb-3 mx-auto" style="max-width: 80rem;">
 
             <div class="card-body">
-                <h5 class="card-title">Enter a Spotify username below to view public playlists</h5>
+                <h5 class="card-title">Enter a Spotify username below to view public playlists,</h5>
+                <h5 class="card-title">then click a playlist thumbnail to view statistics!</h5>
                 <br>
 
                 {% if user_info %}
                     {% if user_info['images'] %}
                         <img src="{{ user_info['images'][0]['url'] }}" class="img-fluid rounded-circle" style="max-height: 200px;" alt="User Profile Picture">
                     {% else %}
-                        <br>
-                        <p class="card-text">No User Profile Picture</p>
+                        <img src="{{ url_for('static', filename='images/spotify_icon.png') }}" class="img-fluid" style="max-height: 200px;" alt="Spotify Logo">
                     {% endif %}
                     <br><br>
                     <p class="card-text">Hi, {{ user_info['display_name'] }}!</p>
+                {% else %}
+                    <img src="{{ url_for('static', filename='images/spotify_icon.png') }}" class="img-fluid" style="max-height: 200px;" alt="Spotify Logo">
+                    <br><br>
                 {% endif %}
-
 
                 <form role="form" method="POST">
 
