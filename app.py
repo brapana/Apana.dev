@@ -187,18 +187,11 @@ def playlist_info():
         if 'playlist_selection' in request.form:
             selected_playlist = request.form['playlist_selection']
 
-
             # gather information on the selected playlist, only request fields we need
             user_playlist = spotify.user_playlist(username, selected_playlist,
                                                   fields='tracks.items(track(duration_ms, \
                                                   explicit, popularity, album(release_date))), \
                                                   tracks(total, next), images, name')
-
-
-
-            print(selected_playlist)
-
-
 
 
             playlist_stats = {'avg_track_length': 0.0, 'num_explicit': 0,
@@ -210,7 +203,6 @@ def playlist_info():
 
 
             counter = 1
-
 
             # Spotify API only returns 100 songs at a time, check for the presence
             # of more tracks after processing current batch and continue until complete
@@ -262,9 +254,6 @@ def playlist_info():
 
 
 
-
-
-
     return render_template('playlist_info.html', user_info=user_info,
                                        user_playlists=user_playlists,
                                        playlist_stats=playlist_stats)
@@ -275,5 +264,6 @@ def page_not_found(error):
     return render_template('page_not_found.html'), 404
 
 
-#if __name__ == '__main__':
+# uncomment below to run app.py locally without WSGI engine
+# if __name__ == '__main__':
 #    application.run(host='0.0.0.0', port=80)
