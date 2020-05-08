@@ -1,5 +1,6 @@
-# Flask Project
-In-progress multi-purpose project utilizing Python3, Flask, Bootstrap4, Datatables, PostgreSQL, and the Spotify API.
+# Apana.dev
+In-progress multi-purpose project utilizing Python3, Flask, Bootstrap4, Datatables, PostgreSQL, GeoLite2, and the Spotify API.
+This code is hosted at [Apana.dev](https://apana.dev/) via AWS EC2, Elastic Beanstalk, and RDS.
 Stay tuned for updates. 
 
 
