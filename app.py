@@ -85,7 +85,11 @@ def before_request():
 
     global geoip_reader
 
-    client_IP = request.remote_addr
+    # retrieve client IP (through proxy if necessary)
+    if request.headers.getlist("X-Forwarded-For"):
+        client_IP = request.headers.getlist("X-Forwarded-For")[0]
+    else:
+        client_IP = request.remote_addr
 
     location = ''
 
@@ -138,7 +142,11 @@ def page_views():
     '''
     all_page_views = db.session.query(PageViews).all()
 
-    client_IP = request.remote_addr
+    # retrieve client IP (through proxy if necessary)
+    if request.headers.getlist("X-Forwarded-For"):
+        client_IP = request.headers.getlist("X-Forwarded-For")[0]
+    else:
+        client_IP = request.remote_addr
 
     return render_template('page_views.html', all_page_views=all_page_views, client_IP=client_IP)
 
