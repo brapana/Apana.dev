@@ -168,6 +168,11 @@ def get_album_art(query):
 def playlist_info():
     '''
     Given a Spotify username and selecting a playlist, display stats about it.
+    Current stats:
+    Average track length
+    Average track popularity (percentage)
+    Average track release year
+    Number of explicit tracks (and percentage)
     '''
 
     global spotify
