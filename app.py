@@ -18,7 +18,7 @@ import geoip2.database
 
 # spotify API wrapper
 import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
+# from spotipy.oauth2 import SpotifyClientCredentials
 
 # tarfile extraction (for GeoLite database)
 import tarfile
@@ -32,8 +32,11 @@ geoip_reader = None
 
 
 # initialize Spotify API wrapper
-client_credentials_manager = SpotifyClientCredentials(client_id=secrets.SPOTIFY_CLIENT_ID,client_secret=secrets.SPOTIFY_CLIENT_SECRET)
-spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+# client_credentials_manager = SpotifyClientCredentials(client_id=secrets.SPOTIFY_CLIENT_ID,client_secret=secrets.SPOTIFY_CLIENT_SECRET)
+# spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+
+sp_oauth = spotipy.oauth2.SpotifyOAuth(client_id=secrets.SPOTIFY_CLIENT_ID, client_secret=secrets.SPOTIFY_CLIENT_SECRET, redirect_uri="http://localhost:5000/playlist_info", scope="user-library-read")
+
 
 
 application = Flask(__name__)
@@ -85,7 +88,7 @@ def before_request():
 
     global geoip_reader
 
-    # retrieve client IP (through proxy if necessary)
+    # retrieve client IP (through SSL proxy if necessary)
     if request.headers.getlist("X-Forwarded-For"):
         client_IP = request.headers.getlist("X-Forwarded-For")[0]
     else:
@@ -183,7 +186,26 @@ def playlist_info():
     Number of explicit tracks (and percentage)
     '''
 
-    global spotify
+    access_token = ""
+    auth_url = ""
+
+
+    url = request.url
+    print(url)
+    code = sp_oauth.parse_response_code(url)
+    print("--------------------")
+    print(code)
+    # TODO: solidify response code check logic
+    if "?code=" in url:
+        print ("Found Spotify auth code in Request URL! Trying to get valid access token...")
+        token_info = sp_oauth.get_access_token(code)
+        access_token = token_info['access_token']
+
+    if access_token:
+        print ("Access token available! Trying to get user information...")
+
+    else:
+        auth_url = sp_oauth.get_authorize_url()
 
 
     user_info = dict()
@@ -193,15 +215,19 @@ def playlist_info():
     playlist_stats = dict()
 
 
-    if request.method == 'POST':
-        username = request.form['username']
+    if access_token:
+        sp = spotipy.Spotify(access_token)
+        current_user = sp.current_user()
+        print(current_user)
+        username = current_user['id']
+        # flash('Successfully logged in as {}!'.format(current_user['display_name']), 'success')
 
         # if a playlist is selected, generate and push statistics
         if 'playlist_selection' in request.form:
             selected_playlist = request.form['playlist_selection']
 
             # gather information on the selected playlist, only request fields we need
-            user_playlist = spotify.user_playlist(username, selected_playlist,
+            user_playlist = sp.user_playlist(username, selected_playlist,
                                                   fields='tracks.items(track(duration_ms, \
                                                   explicit, popularity, album(release_date))), \
                                                   tracks(total, next), images, name')
@@ -240,7 +266,7 @@ def playlist_info():
 
 
                 if user_playlist['tracks']['next']:
-                    user_playlist['tracks'] = spotify.next(user_playlist['tracks'])
+                    user_playlist['tracks'] = sp.next(user_playlist['tracks'])
                 else:
                     break
 
@@ -255,9 +281,9 @@ def playlist_info():
 
 
         try:
-            user_info = spotify.user(username)
+            user_info = sp.user(username)
 
-            for playlist in spotify.user_playlists(username,offset=0,limit=50)['items']:
+            for playlist in sp.user_playlists(username,offset=0,limit=50)['items']:
                 if playlist['tracks']['total'] > 0:
                     user_playlists.append({'cover_image': playlist['images'][0]['url'], 'name': playlist['name'], 'id': playlist['id']})
 
@@ -267,9 +293,9 @@ def playlist_info():
 
 
 
-    return render_template('playlist_info.html', user_info=user_info,
+    return render_template('login.html', user_info=user_info,
                                        user_playlists=user_playlists,
-                                       playlist_stats=playlist_stats)
+                                       playlist_stats=playlist_stats, auth_url=auth_url, access_token=access_token)
 
 
 @application.errorhandler(404)
@@ -278,5 +304,5 @@ def page_not_found(error):
 
 
 # uncomment below to run app.py locally without WSGI engine
-# if __name__ == '__main__':
-#    application.run(host='0.0.0.0', port=80)
+if __name__ == '__main__':
+   application.run(host='0.0.0.0', port=5000)
