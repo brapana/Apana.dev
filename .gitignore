@@ -56,3 +56,6 @@ docs/_build/
 *.DS_Store
 secrets.py
 .ebextensions/
+test.zip
+testOLD.zip
+geoipDB/GeoLite2-City.mmdb
