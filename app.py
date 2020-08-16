@@ -5,6 +5,9 @@ from flask import Flask
 from flask import render_template
 from flask import request
 from flask import flash
+from flask import redirect
+from flask import url_for
+from flask import session
 from flask_sqlalchemy import SQLAlchemy
 
 from datetime import datetime
@@ -35,7 +38,7 @@ geoip_reader = None
 # client_credentials_manager = SpotifyClientCredentials(client_id=secrets.SPOTIFY_CLIENT_ID,client_secret=secrets.SPOTIFY_CLIENT_SECRET)
 # spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
-sp_oauth = spotipy.oauth2.SpotifyOAuth(client_id=secrets.SPOTIFY_CLIENT_ID, client_secret=secrets.SPOTIFY_CLIENT_SECRET, redirect_uri="http://localhost:5000/playlist_info", scope="user-library-read")
+
 
 
 
@@ -178,34 +181,51 @@ def get_album_art(query):
 @application.route('/playlist_info', methods=['GET', 'POST'])
 def playlist_info():
     '''
-    Given a Spotify username and selecting a playlist, display stats about it.
-    Current stats:
+    After logging in to Spotify via oauth2 and selecting a playlist, display stats about it.
+    Displayed stats:
     Average track length
     Average track popularity (percentage)
     Average track release year
     Number of explicit tracks (and percentage)
     '''
 
+
+    scopes = "user-library-read playlist-read-private"
+
+    sp_oauth = spotipy.oauth2.SpotifyOAuth(client_id=secrets.SPOTIFY_CLIENT_ID, client_secret=secrets.SPOTIFY_CLIENT_SECRET, redirect_uri="http://localhost:5000/playlist_info", scope=scopes, cache_path=None)
+
     access_token = ""
     auth_url = ""
 
 
     url = request.url
-    print(url)
     code = sp_oauth.parse_response_code(url)
-    print("--------------------")
-    print(code)
-    # TODO: solidify response code check logic
-    if "?code=" in url:
-        print ("Found Spotify auth code in Request URL! Trying to get valid access token...")
-        token_info = sp_oauth.get_access_token(code)
-        access_token = token_info['access_token']
 
-    if access_token:
-        print ("Access token available! Trying to get user information...")
+
+    if 'token_info' in session and not sp_oauth.is_token_expired(session['token_info']):
+        # print(session['token_info'])
+        print ("Found valid token from session")
+        access_token = session['token_info']['access_token']
 
     else:
         auth_url = sp_oauth.get_authorize_url()
+
+
+        # TODO: solidify response code check logic
+        # if url contains a callback response code
+        if "?code=" in url:
+            print("Requesting oauth token")
+            try:
+                token_info = sp_oauth.get_access_token(code,check_cache=False)
+                session['token_info'] = token_info
+                print("Successfully received oauth token")
+            except spotipy.oauth2.SpotifyOauthError:
+                flash('Invalid/expired authorization code received, please attempt sign in again', 'danger')
+                print("Error in receiving oauth token")
+                return redirect(url_for('playlist_info'))
+
+            return redirect(url_for('playlist_info'))
+
 
 
     user_info = dict()
@@ -218,9 +238,8 @@ def playlist_info():
     if access_token:
         sp = spotipy.Spotify(access_token)
         current_user = sp.current_user()
-        print(current_user)
+        print(f'Logged in {current_user["id"]} : {current_user["display_name"]}')
         username = current_user['id']
-        # flash('Successfully logged in as {}!'.format(current_user['display_name']), 'success')
 
         # if a playlist is selected, generate and push statistics
         if 'playlist_selection' in request.form:
@@ -228,7 +247,7 @@ def playlist_info():
 
             # gather information on the selected playlist, only request fields we need
             user_playlist = sp.user_playlist(username, selected_playlist,
-                                                  fields='tracks.items(track(duration_ms, \
+                                                  fields='tracks.items(track(id, duration_ms, \
                                                   explicit, popularity, album(release_date))), \
                                                   tracks(total, next), images, name')
 
@@ -236,10 +255,13 @@ def playlist_info():
             playlist_stats = {'avg_track_length': 0.0, 'num_explicit': 0,
                               'avg_popularity': 0.0, 'release_year_freqs': defaultdict(int),
                               'num_tracks': user_playlist['tracks']['total'], 'name': user_playlist['name'],
-                              'cover_image': user_playlist['images'][0]['url'], 'avg_release_year': 0}
+                              'cover_image': user_playlist['images'][0]['url'], 'avg_release_year': 0, 'avg_modality': 0.0,
+                              'avg_acousticness': 0.0, 'avg_danceability': 0.0, 'avg_energy': 0.0, 'avg_instrumentalness': 0.0,
+                              'avg_liveness': 0.0, 'avg_loudness': 0.0, 'avg_speechiness': 0.0, 'avg_valence': 0.0, 'avg_tempo': 0.0, }
             total_track_lengths = 0
             total_track_popularities = 0
 
+            track_ids = []
 
             counter = 1
 
@@ -260,8 +282,10 @@ def playlist_info():
 
                         playlist_stats['release_year_freqs'][release_year] += 1
 
+                    if item['track']['id'] is not None:
+                        track_ids.append(item['track']['id'])
 
-                    print(f'Track processed: {counter} length: {item["track"]["duration_ms"] / 60000}')
+                    # print(f'Track processed: {counter} length: {item["track"]["duration_ms"] / 60000}')
                     counter += 1
 
 
@@ -269,6 +293,22 @@ def playlist_info():
                     user_playlist['tracks'] = sp.next(user_playlist['tracks'])
                 else:
                     break
+
+            audio_features = []
+
+            # Spotify API accepts a maximum of 100 audio features per query, separate tracks by 100s
+            while (track_ids):
+                audio_features.extend(sp.audio_features(track_ids[:100]))
+                track_ids = track_ids[100:]
+
+
+
+            num_features = len(audio_features)
+
+            print(f'Tracks processed: {counter}')
+            print(f'Audio features processed: {num_features}')
+
+            print(audio_features[0])
 
             # calculate and store averages for the following fields
             num_tracks = playlist_stats['num_tracks']
@@ -282,9 +322,9 @@ def playlist_info():
 
         try:
             user_info = sp.user(username)
-
-            for playlist in sp.user_playlists(username,offset=0,limit=50)['items']:
-                if playlist['tracks']['total'] > 0:
+            # TODO: playlist image length check is hack atm
+            for playlist in sp.current_user_playlists(offset=0,limit=50)['items']:
+                if playlist['tracks']['total'] > 0 and len(playlist['images']) > 0:
                     user_playlists.append({'cover_image': playlist['images'][0]['url'], 'name': playlist['name'], 'id': playlist['id']})
 
 
