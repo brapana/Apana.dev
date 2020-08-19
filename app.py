@@ -201,6 +201,10 @@ def playlist_info():
     url = request.url
     code = sp_oauth.parse_response_code(url)
 
+    if '?logout=true' in url:
+        session.clear()
+        return redirect(url_for('playlist_info'))
+
 
     if 'token_info' in session and not sp_oauth.is_token_expired(session['token_info']):
         # print(session['token_info'])
@@ -213,7 +217,7 @@ def playlist_info():
 
         # TODO: solidify response code check logic
         # if url contains a callback response code
-        if "?code=" in url:
+        if '?code=' in url:
             print("Requesting oauth token")
             try:
                 token_info = sp_oauth.get_access_token(code,check_cache=False)
@@ -252,6 +256,7 @@ def playlist_info():
                                                   tracks(total, next), images, name')
 
 
+            # modality: 0=minor key, 1=major key
             playlist_stats = {'avg_track_length': 0.0, 'num_explicit': 0,
                               'avg_popularity': 0.0, 'release_year_freqs': defaultdict(int),
                               'num_tracks': user_playlist['tracks']['total'], 'name': user_playlist['name'],
@@ -262,6 +267,7 @@ def playlist_info():
             total_track_popularities = 0
 
             track_ids = []
+            audio_features = []
 
             counter = 1
 
@@ -270,43 +276,41 @@ def playlist_info():
             while True:
                 for item in user_playlist['tracks']['items']:
 
+                    total_track_lengths += item['track']['duration_ms']
+
                     if item['track']['explicit']:
                         playlist_stats['num_explicit'] += 1
-
-                    total_track_lengths += item['track']['duration_ms']
 
                     total_track_popularities += item['track']['popularity']
 
                     if item['track']['album']['release_date']:
                         release_year = item['track']['album']['release_date'].split('-')[0]
-
                         playlist_stats['release_year_freqs'][release_year] += 1
 
+                    # collect track ids for use by audio features API call
                     if item['track']['id'] is not None:
                         track_ids.append(item['track']['id'])
 
                     # print(f'Track processed: {counter} length: {item["track"]["duration_ms"] / 60000}')
+
                     counter += 1
 
+
+
+
+                audio_features.extend(sp.audio_features(track_ids[:100]))
+                track_ids = []
 
                 if user_playlist['tracks']['next']:
                     user_playlist['tracks'] = sp.next(user_playlist['tracks'])
                 else:
                     break
 
-            audio_features = []
 
-            # Spotify API accepts a maximum of 100 audio features per query, separate tracks by 100s
-            while (track_ids):
-                audio_features.extend(sp.audio_features(track_ids[:100]))
-                track_ids = track_ids[100:]
-
-
-
-            num_features = len(audio_features)
+            num_audio_features = len(audio_features)
 
             print(f'Tracks processed: {counter}')
-            print(f'Audio features processed: {num_features}')
+            print(f'Audio features processed: {num_audio_features}')
 
             print(audio_features[0])
 
@@ -317,8 +321,31 @@ def playlist_info():
             playlist_stats['avg_popularity'] = total_track_popularities / num_tracks
 
             # given the release_year_freqs dictonary, calculates the rounded average release year across all tracks with a release date
-            playlist_stats['avg_release_year'] = round(sum((int(year) * freq for year, freq in playlist_stats['release_year_freqs'].items())) / sum(playlist_stats['release_year_freqs'].values()))
+            try:
+                playlist_stats['avg_release_year'] = round(sum((int(year) * freq for year, freq in playlist_stats['release_year_freqs'].items())) / sum(playlist_stats['release_year_freqs'].values()))
+            except(ZeroDivisionError):
+                playlist_stats['avg_release_year'] = "N/A"
 
+
+            audio_feature_avgs = ('avg_modality', 'avg_acousticness', 'avg_danceability', 'avg_energy', 'avg_instrumentalness',
+                                   'avg_liveness', 'avg_loudness', 'avg_speechiness', 'avg_valence', 'avg_tempo')
+
+            # process audio features into averages
+            for track in audio_features:
+                if track:
+                    playlist_stats['avg_modality'] += track['mode']
+                    playlist_stats['avg_acousticness'] += track['acousticness']
+                    playlist_stats['avg_danceability'] += track['danceability']
+                    playlist_stats['avg_energy'] += track['energy']
+                    playlist_stats['avg_instrumentalness'] += track['instrumentalness']
+                    playlist_stats['avg_liveness'] += track['liveness']
+                    playlist_stats['avg_loudness'] += track['loudness']
+                    playlist_stats['avg_speechiness'] += track['speechiness']
+                    playlist_stats['avg_valence'] += track['valence']
+                    playlist_stats['avg_tempo'] += track['tempo']
+
+            for avg in audio_feature_avgs:
+                playlist_stats[avg] = playlist_stats[avg] / num_audio_features
 
         try:
             user_info = sp.user(username)
@@ -345,4 +372,4 @@ def page_not_found(error):
 
 # uncomment below to run app.py locally without WSGI engine
 if __name__ == '__main__':
-   application.run(host='0.0.0.0', port=5000)
+   application.run(host='0.0.0.0', port=5000, debug=True)
