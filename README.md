@@ -6,9 +6,14 @@ Stay tuned for updates.
 
 # Current Features
 
+
 **Website view tracking:** when a unique visitor (with a per-IP cooldown of 30 minutes) accesses the Flask Project website, the visit number, geolocation, and timestamp are recorded in a PostgreSQL table (via SQLAlchemy). Data for each visit is viewable on the Page Views portal. Geolocation from Maxmind free GeoLite2 databases, for download permalink create an account [here](https://www.maxmind.com/en/geolite2/signup)
 
-**Spotify playlist information:** Spotify playlist info page where a user can log in to see a list of their playlists. Clicking a playlist displays the average track length, track popularity, and percentage of explicit tracks of the playlist. Also displays averages of Spotify audio features such as danceability and energy (see [here](https://developer.spotify.com/documentation/web-api/reference/tracks/get-audio-features/)) Uses the [Spotify Web API](https://developer.spotify.com/documentation/web-api/) and [Spotipy API Wrapper](https://spotipy.readthedocs.io/en/latest/)
+![Website Views](https://i.imgur.com/teJUsuu.png "Website Views")
+
+**Spotify playlist statistics:** Spotify playlist statistics page where a user can log in to see a list of their playlists. Clicking a playlist displays the average track length, track popularity, and percentage of explicit tracks of the playlist. Also displays averages of Spotify audio features such as danceability and energy (see [here](https://developer.spotify.com/documentation/web-api/reference/tracks/get-audio-features/)). Uses the [Spotify Web API](https://developer.spotify.com/documentation/web-api/) and [Spotipy API Wrapper](https://spotipy.readthedocs.io/en/latest/)
+
+![Spotify Playlist Stats](https://i.imgur.com/1KCOecm.png "Spotify Playlist Stats")
 
 # Usage:
 
