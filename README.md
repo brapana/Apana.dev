@@ -20,7 +20,7 @@ Stay tuned for updates.
 Create a file named secrets.py at the root of the project folder (alongside app.py) containing the following lines:
 
 ```
-DATABASE_URL="postgresql://db_username:db_password@localhost/db_name"
+DATABASE_URL="postgresql://db_username:db_password@ip_address/db_name"
 APP_SETTINGS="config.{TestingConfig|DevelopmentConfig|StagingConfig|ProductionConfig}"
 SECRET_KEY="Your Secret Key Here" (set a key unique to you)
 SPOTIFY_CLIENT_ID="Your Spotify API Client ID Here"
