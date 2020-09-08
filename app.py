@@ -97,7 +97,7 @@ def before_request():
 
         # gather location results based on client's IP address
         try:
-            geoip_results = geoip_reader.city(client_IP)
+            geoip_results = geoip_reader.city(str(client_IP))
             country_name = geoip_results.country.name if geoip_results.country.name else "Unknown"
             area_name = geoip_results.subdivisions.most_specific.name if geoip_results.subdivisions.most_specific.name else "Unknown"
             city_name = geoip_results.city.name if geoip_results.city.name else "Unknown"
@@ -353,5 +353,5 @@ def page_not_found(error):
 
 
 # uncomment below to run app.py locally without WSGI engine
-# if __name__ == '__main__':
-#   application.run(host='0.0.0.0', port=5000, debug=True)
+if __name__ == '__main__':
+    application.run(host='0.0.0.0', port=5000, debug=True)
