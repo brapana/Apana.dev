@@ -89,7 +89,11 @@ def before_request():
 
     location = ''
 
-    latest_access = db.session.query(PageViews).filter_by(ip_address=client_IP).order_by(PageViews.time_stamp.desc()).first()
+    try:
+        latest_access = db.session.query(PageViews).filter_by(ip_address=client_IP).order_by(PageViews.time_stamp.desc()).first()
+    except SQLAlchemy.exc:
+        print("DB connection failed. Skipping visit tracking.")
+        return
 
 
     # if this IP address has never visited the home page before, or if it has been 30 min since its last visit...
