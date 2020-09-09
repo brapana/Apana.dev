@@ -54,11 +54,11 @@
                         <br>
 
                         <div class="row justify-content-center">
-                            <div class="col-xs-3 my-auto">
+                            <div class="col-sm-3 my-auto">
                                 <img src="{{ playlist_stats['cover_image'] }}" class="img-fluid rounded border" style="max-height: 180px;" alt="Playlist Cover Image">
                             </div>
-                            <hr style="margin: 20px">
-                            <div class="col-xs-3 my-auto">
+
+                            <div class="col-sm-3 my-auto">
                                 <p class="card-text">
                                 Length: {{ "%.2f" | format(playlist_stats['avg_track_length'] / 60000.0) }} min<br>
                                 Popularity: {{ "%.2f" | format(playlist_stats['avg_popularity']) }}%<br>
@@ -76,8 +76,8 @@
                                 Acousticness: {{ "%.2f" | format(playlist_stats['avg_acousticness'] * 100) }}%<br>
                                 </p>
                             </div>
-                            <hr style="margin: 20px">
-                            <div class="col-xs-3 my-auto">
+
+                            <div class="col-sm-3 my-auto">
                                 <p class="card-text">
 
                                 Liveness: {{ "%.2f" | format(playlist_stats['avg_liveness'] * 100) }}%
