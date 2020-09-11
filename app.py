@@ -116,6 +116,11 @@ def before_request():
             else:
                 location = 'Unknown'
 
+        # if the Maxminddb reader returns corrupt data
+        except(maxminddb.errors.InvalidDatabaseError):
+            location = 'Unknown'
+            print("Maxminddb reader encountered an error, data section corrupt.")
+
 
         newPageView = PageViews(ip_address=client_IP, location=location,
                                 time_stamp = datetime.utcnow())
