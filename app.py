@@ -156,26 +156,6 @@ def page_views():
     return render_template('page_views.html', all_page_views=all_page_views, client_IP=client_IP)
 
 
-@application.route('/album_art/<query>', methods=['GET', 'POST'])
-def get_album_art(query):
-    '''
-    Given a search query, returns a downloadable album art image from Spotify.
-    '''
-
-    global spotify
-
-    results = spotify.search(q=query,offset=0,limit=1,type='album')
-
-    album_art=None
-
-
-    if len(results['albums']['items']) > 0:
-        if len(results['albums']['items'][0]['images']) > 0:
-            album_art = results['albums']['items'][0]['images'][0]['url']
-
-
-    return render_template('get_album_art.html', album_art=album_art)
-
 
 @application.route('/playlist_info', methods=['GET', 'POST'])
 def playlist_info():
