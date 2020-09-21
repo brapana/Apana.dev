@@ -12,6 +12,8 @@ from flask_sqlalchemy import SQLAlchemy
 
 from datetime import datetime
 from datetime import timedelta
+from pytz import timezone
+from pytz import utc
 
 # Python file containing credentials
 import secrets
@@ -31,6 +33,9 @@ import urllib.request
 
 # initialize GeoLite database to empty object
 geoip_reader = None
+
+# set timezone of server (for time display)
+TIMEZONE = timezone('US/Pacific')
 
 application = Flask(__name__)
 application.config.from_object(secrets.APP_SETTINGS)
@@ -97,7 +102,7 @@ def before_request():
 
 
     # if this IP address has never visited the home page before, or if it has been 30 min since its last visit...
-    if not latest_access or latest_access.time_stamp < datetime.utcnow()-timedelta(minutes=30):
+    if not latest_access or latest_access.time_stamp.astimezone(utc) < datetime.now(utc)-timedelta(minutes=30):
 
         # gather location results based on client's IP address
         try:
@@ -123,7 +128,7 @@ def before_request():
 
 
         newPageView = PageViews(ip_address=client_IP, location=location,
-                                time_stamp = datetime.utcnow())
+                                time_stamp = datetime.now(utc))
 
 
         db.session.add(newPageView)
@@ -142,10 +147,10 @@ def home_page():
 @application.route('/page_views', methods=['GET'])
 def page_views():
     '''
-    Displays the view number, location, and timestamp of every web page view
-    using the databases jquery plug-in with Bootstrap4 theming
+    Displays the view number, location, and timestamp of the last 1000 web page views
+    using the datatables jquery plug-in with Bootstrap4 theming
     '''
-    all_page_views = db.session.query(PageViews).all()
+    all_page_views = db.session.query(PageViews).order_by(PageViews.view_num.desc()).limit(500)
 
     # retrieve client IP (through proxy if necessary)
     if request.headers.getlist('X-Forwarded-For'):
@@ -153,8 +158,7 @@ def page_views():
     else:
         client_IP = request.remote_addr
 
-    return render_template('page_views.html', all_page_views=all_page_views, client_IP=client_IP)
-
+    return render_template('page_views.html', all_page_views=all_page_views, client_IP=client_IP, TIMEZONE=TIMEZONE)
 
 
 @application.route('/playlist_info', methods=['GET', 'POST'])
