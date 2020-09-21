@@ -7,7 +7,7 @@ Stay tuned for updates.
 # Current Features
 
 
-**Website view tracking:** when a unique visitor (with a per-IP cooldown of 30 minutes) accesses the Flask Project website, the visit number, geolocation, and timestamp are recorded in a PostgreSQL table (via SQLAlchemy). Data for each visit is viewable on the Page Views portal. Geolocation from Maxmind free GeoLite2 databases, for download permalink create an account [here](https://www.maxmind.com/en/geolite2/signup)
+**Website view tracking:** when a unique visitor (with a per-IP cooldown of 30 minutes) accesses the Flask Project website, the visit number, geolocation, and timestamp are recorded in a PostgreSQL table (via SQLAlchemy). Data for each visit is viewable on the Page Views portal, which will display the last 500 views. Geolocation from Maxmind free GeoLite2 databases, for download permalink create an account [here](https://www.maxmind.com/en/geolite2/signup)
 
 ![Website Views](https://i.imgur.com/p7efU9Y.png "Website Views")
 
