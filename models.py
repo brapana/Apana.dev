@@ -1,5 +1,5 @@
 from app import db
-
+from datetime import datetime
 
 class PageViews(db.Model):
     __tablename__ = 'PageViews'
@@ -7,7 +7,7 @@ class PageViews(db.Model):
     view_num = db.Column(db.Integer, primary_key=True, autoincrement=True)
     ip_address = db.Column(db.String(), index=True)
     location = db.Column(db.String())
-    time_stamp = db.Column(db.DateTime)
+    time_stamp = db.Column(db.DateTime(timezone=True))
 
     def __init__(self, ip_address, location, time_stamp):
         self.ip_address = ip_address

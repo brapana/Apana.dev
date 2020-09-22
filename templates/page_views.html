@@ -35,7 +35,7 @@
                               <td data-sort="{{ page_view.view_num }}">{{ page_view.view_num }}</td>
                           {% endif %}
                           <td>{{ page_view.location }}</td>
-                          <td data-sort="{{ page_view.time_stamp.astimezone(TIMEZONE).strftime('%Y%m%d%H%M%s') }}">{{ page_view.time_stamp.strftime('%I:%M %p %m-%d-%Y') }}</td>
+                          <td data-sort="{{ page_view.time_stamp.astimezone(TIMEZONE).strftime('%Y%m%d%H%M%s') }}">{{ page_view.time_stamp.astimezone(TIMEZONE).strftime('%I:%M %p %m-%d-%Y') }}</td>
                       </tr>
                     {% endfor %}
                   </tbody>
