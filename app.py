@@ -100,9 +100,12 @@ def before_request():
         print("DB connection failed. Skipping visit tracking.")
         return
 
+    # create correctly labeled utcnow object (for correct timezone conversion)
+    utc_now = datetime.utcnow()
+    utc_now = utc_now.replace(tzinfo=utc)
 
-    # if this IP address has never visited the home page before, or if it has been 30 min since its last visit...
-    if not latest_access or latest_access.time_stamp.astimezone(utc) < datetime.now(utc)-timedelta(minutes=30):
+    # if this IP address has never visited the home page before, or if it has been 30 min since its last visit
+    if not latest_access or latest_access.time_stamp.astimezone(utc) < utc_now-timedelta(minutes=30):
 
         # gather location results based on client's IP address
         try:
@@ -127,8 +130,10 @@ def before_request():
             print("Maxminddb reader encountered an error, data section corrupt.")
 
 
+        print(utc_now)
+
         newPageView = PageViews(ip_address=client_IP, location=location,
-                                time_stamp = datetime.now(utc))
+                                time_stamp = utc_now)
 
 
         db.session.add(newPageView)
@@ -147,7 +152,7 @@ def home_page():
 @application.route('/page_views', methods=['GET'])
 def page_views():
     '''
-    Displays the view number, location, and timestamp of the last 1000 web page views
+    Displays the view number, location, and timestamp of the last 500 web page views
     using the datatables jquery plug-in with Bootstrap4 theming
     '''
     all_page_views = db.session.query(PageViews).order_by(PageViews.view_num.desc()).limit(500)
