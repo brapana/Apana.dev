@@ -9,6 +9,7 @@ from flask import redirect
 from flask import url_for
 from flask import session
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import exc
 
 from datetime import datetime
 from datetime import timedelta
@@ -97,11 +98,7 @@ def before_request():
     try:
         latest_access = db.session.query(PageViews).filter_by(ip_address=client_IP).order_by(PageViews.time_stamp.desc()).first()
 
-
-    except (KeyboardInterrupt, SystemExit):
-        raise
-    # TODO: change from generic exception
-    except:
+    except SQLAlchemyError:
         print("DB connection failed. Skipping visit tracking.")
         return
 
@@ -136,7 +133,6 @@ def before_request():
         except:
             location = 'Unknown'
             print("Maxminddb reader encountered an error, data section corrupt.")
-
 
 
         newPageView = PageViews(ip_address=client_IP, location=location,
@@ -337,7 +333,6 @@ def playlist_info():
 
         try:
             user_info = sp.user(username)
-            # TODO: playlist image length check is hack atm
             for playlist in sp.current_user_playlists(offset=0,limit=50)['items']:
                 if playlist['tracks']['total'] > 0 and len(playlist['images']) > 0:
                     user_playlists.append({'cover_image': playlist['images'][0]['url'], 'name': playlist['name'], 'id': playlist['id']})
