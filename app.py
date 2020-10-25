@@ -96,7 +96,12 @@ def before_request():
 
     try:
         latest_access = db.session.query(PageViews).filter_by(ip_address=client_IP).order_by(PageViews.time_stamp.desc()).first()
-    except SQLAlchemy.exc:
+
+
+    except (KeyboardInterrupt, SystemExit):
+        raise
+    # TODO: change from generic exception
+    except:
         print("DB connection failed. Skipping visit tracking.")
         return
 
@@ -124,13 +129,15 @@ def before_request():
             else:
                 location = 'Unknown'
 
+        except (KeyboardInterrupt, SystemExit):
+            raise
         # if the Maxminddb reader returns corrupt data
-        except(maxminddb.errors.InvalidDatabaseError):
+        # TODO: Change from generic exception
+        except:
             location = 'Unknown'
             print("Maxminddb reader encountered an error, data section corrupt.")
 
 
-        print(utc_now)
 
         newPageView = PageViews(ip_address=client_IP, location=location,
                                 time_stamp = utc_now)
@@ -348,6 +355,14 @@ def playlist_info():
 @application.errorhandler(404)
 def page_not_found(error):
     return render_template('page_not_found.html'), 404
+
+
+@application.route('/privacy', methods=['GET'])
+def privacy_page():
+    '''
+    Privacy Policy Page
+    '''
+    return render_template('privacy.html')
 
 
 # uncomment below to run app.py locally without WSGI engine

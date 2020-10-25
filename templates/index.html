@@ -1,79 +1,85 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div class="container">
-
+<div class="container-fluid" style="max-width: 90rem">
+  <br>
+  <br>
   <div class="row">
-    <div class="col-sm-12">
-      <h1 class="display-4">Home Page</h1>
-    </div>
+      <div class="col-lg-12 text-center">
+          <div class="card bg-dark mb-3 mx-auto" style="max-width: 43rem;">
+
+              <div class="card-body" id=profile-links>
+                  <h1>Brandon Apana</h1>
+                  <h6 class="card-title">Master's Student in Software Engineering - Full Stack Software Developer</h6>
+                  <a href="https://www.linkedin.com/in/brandon-apana/" title="" style="text-decoration: none;" target="_blank">
+                    <img src="/static/images/linkedin_icon.png" class="img-fluid rounded" style="max-height: 20px; margin-bottom: 3px; margin-right: 5px; margin-left: 10px;" alt="LinkedIn">LinkedIn
+                  </a>
+                  <a href="https://github.com/brapana" title="" style="text-decoration: none;" target="_blank">
+                    <img src="/static/images/github_icon.png" class="img-fluid rounded" style="max-height: 20px; margin-bottom: 3px; margin-right: 5px; margin-left: 10px;" alt="GitHub">GitHub
+                  </a>
+              </div>
+          </div>
+
+      </div>
   </div>
 
-  <div class="row">
-    <div class="col-lg-12 text-center">
-        <div class="card text-white bg-dark mb-3 mx-auto" style="max-width: 43rem;">
+  <br>
+  <br>
+  <div class="row justify-content-center" style="margin-top: -15px;">
 
-            <div class="card-body">
-                <h5 class="card-title">Welcome to Apana.dev!</h5>
-                <p class="card-text">My name is Brandon Apana and this is my personal web development project, built primarily utilizing Python, Flask, HTML, Bootstrap, and PostgreSQL (hosted on AWS).
-                                    I am a Master of Software Engineering student at the University of California, Irvine with hands-on work experience in Information Technology, Quality Assurance, and Software Development.
-                                    In Spring 2020, I earned a Bachelor's in Computer Science from UCI with a specialization in Information (Database Development, Data Mining, and Information Retrieval).
-                                    While I specialize in back-end development, this personal project is an attempt to hone my skills as a full-stack web developer. Use the navigation buttons above to try out some of this project's
-                                    features. Below are links to my projects' GitHub repositories, my GitHub profile, and my LinkedIn. Thanks for stopping by!</p>
-            </div>
-        </div>
+    <div class="card" style="width: 18rem;">
+      <img class="card-img-top" src="static/images/bor_thumbnail.png" alt="Card image cap">
+      <div class="card-body">
 
+        <h5 class="card-title">Bravery of Runeterra</h5>
+        <p class="card-text">Riot Games-approved website built in Python3, Flask, Bootstrap4, and JavaScript that generates valid decks for use in their collectible card game Legends of Runeterra. Allows users to filter cards by type and view deck contents as they appear in-game.</p>
+        <a href="https://braveryofruneterra.com/" class="btn btn-primary" target="_blank">Live Website</a>
+      </div>
     </div>
 
-  </div>
-
-  <br><br>
-  <div class="row">
-
-    <div class="col-lg-4 text-center">
-         <a href="https://github.com/brapana/Apana.dev" title="">
-             <img src="{{ url_for('static', filename='images/apanadev_icon.png') }}" class="img-fluid rounded" style="max-height: 120px;" alt="Apana.dev">
-             <br>
-             <h1 class="display-4" style="display: inline-block;">Apana.dev</h1>
-         </a>
+    <div class="card" style="width: 18rem;">
+      <img class="card-img-top" src="static/images/talkbot_thumbnail.png" alt="Card image cap">
+      <div class="card-body">
+        <h5 class="card-title">TalkBot</h5>
+        <p class="card-text">Discord bot built using Python3, Discord.py, and Google's Text-to-Speech API. Several features including relaying text-to-speech audio to a Discord voice channel and responding with a dad joke when users refer to themselves.</p>
+        <a href="https://github.com/brapana/TalkBot" class="btn btn-primary" target="_blank">GitHub Repo</a>
+      </div>
     </div>
 
-    <div class="col-lg-4 text-center">
-         <a href="https://github.com/brapana/HelpBot" title="">
-             <img src="{{ url_for('static', filename='images/helpbot_icon.png') }}" class="img-fluid rounded" style="max-height: 120px;" alt="HelpBot">
-             <br>
-             <h1 class="display-4" style="display: inline-block;">HelpBot</h1>
-         </a>
+
+    <div class="card" style="width: 18rem;">
+      <img class="card-img-top" src="static/images/spotify_stats_thumbnail.png" alt="Card image cap">
+      <div class="card-body">
+        <h5 class="card-title">Spotify Stats</h5>
+        <p class="card-text">Interactive web app built around the Spotify API which allows users to log in to their Spotify account via OAuth2 and view statistics on their playlists such as average track release year, positivity, and danceability.</p>
+        <a href="https://github.com/brapana/Apana.dev" class="btn btn-primary" target="_blank">GitHub Repo</a> <a href="{{ url_for('playlist_info') }}" class="btn btn-primary" target="_blank">Live Website</a>
+      </div>
     </div>
 
-    <div class="col-lg-4 text-center">
-         <a href="https://github.com/brapana/FitMe" title="">
-             <img src="{{ url_for('static', filename='images/fitme_icon.png') }}" class="img-fluid rounded" style="max-height: 120px;" alt="FitMe">
-             <br>
-             <h1 class="display-4" style="display: inline-block;">FitMe</h1>
-         </a>
+    <div class="card" style="width: 18rem;">
+      <img class="card-img-top" src="static/images/apana_dev_thumbnail.png" alt="Card image cap">
+      <div class="card-body">
+        <h5 class="card-title">Apana.dev</h5>
+        <p class="card-text">Portfolio website utilizing Python3, Flask, and Bootstrap4 in order to display projects I have worked on. Also makes use of PostgreSQL and GeoLite2 to track and display website visits (timestamp and IP-based location of each page view).</p>
+        <a href="https://github.com/brapana/Apana.dev" class="btn btn-primary" target="_blank">GitHub Repo</a> <a href="{{ url_for('page_views') }}" class="btn btn-primary" target="_blank">Live Website</a>
+      </div>
     </div>
 
-  </div>
-
-  <br><br>
-  <div class="row justify-content-center">
-
-    <div class="col-lg-4 text-center">
-         <a href="https://github.com/brapana" title="">
-             <img src="{{ url_for('static', filename='images/github_profile_icon.png') }}" class="img-fluid rounded" style="max-height: 120px;" alt="GitHub Profile">
-             <br>
-             <h1 class="display-4" style="display: inline-block;">GitHub Profile</h1>
-         </a>
+    <div class="card" style="width: 18rem;">
+      <img class="card-img-top" src="static/images/fitme_thumbnail.png" alt="Card image cap">
+      <div class="card-body">
+        <h5 class="card-title">FitMe</h5>
+        <p class="card-text">Context-aware Android application using Google's Firestore Cloud Database and Fit APIs. Tracks users' calorie intake and expenditure in order to intelligently suggest workouts via timed push notifications.</p>
+        <a href="https://github.com/brapana/FitMe" class="btn btn-primary" target="_blank">GitHub Repo</a>
+      </div>
     </div>
 
-    <div class="col-lg-4 text-center">
-         <a href="https://www.linkedin.com/in/brandon-apana/" title="">
-             <img src="{{ url_for('static', filename='images/linkedin_icon.png') }}" class="img-fluid rounded" style="max-height: 120px;" alt="LinkedIn">
-             <br>
-             <h1 class="display-4" style="display: inline-block;">LinkedIn</h1>
-         </a>
-    </div>
+
+
+
+
+
+
   </div>
 
 </div>

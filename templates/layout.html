@@ -18,6 +18,7 @@
     {% block head_css %}
         <!-- Bootstrap CSS import (Slate theme)-->
         <link rel="stylesheet" type ="text/css" href="https://stackpath.bootstrapcdn.com/bootswatch/4.3.1/slate/bootstrap.min.css">
+        <link rel="stylesheet" type ="text/css" href="{{ url_for('static', filename='css/style.css') }}" >
     {% endblock %}
 
 
@@ -43,6 +44,9 @@
                 </li>
                 <li class="nav-item">
                     <a href="{{ url_for('page_views') }}" class="nav-link">Page Views</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('privacy_page') }}" class="nav-link">Privacy</a>
                 </li>
             </ul>
         </div>
