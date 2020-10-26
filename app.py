@@ -9,6 +9,7 @@ from flask import redirect
 from flask import url_for
 from flask import session
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import exc
 
 from datetime import datetime
 from datetime import timedelta
@@ -96,7 +97,8 @@ def before_request():
 
     try:
         latest_access = db.session.query(PageViews).filter_by(ip_address=client_IP).order_by(PageViews.time_stamp.desc()).first()
-    except SQLAlchemy.exc:
+
+    except SQLAlchemyError:
         print("DB connection failed. Skipping visit tracking.")
         return
 
@@ -124,13 +126,14 @@ def before_request():
             else:
                 location = 'Unknown'
 
+        except (KeyboardInterrupt, SystemExit):
+            raise
         # if the Maxminddb reader returns corrupt data
-        except(maxminddb.errors.InvalidDatabaseError):
+        # TODO: Change from generic exception
+        except:
             location = 'Unknown'
             print("Maxminddb reader encountered an error, data section corrupt.")
 
-
-        print(utc_now)
 
         newPageView = PageViews(ip_address=client_IP, location=location,
                                 time_stamp = utc_now)
@@ -330,7 +333,6 @@ def playlist_info():
 
         try:
             user_info = sp.user(username)
-            # TODO: playlist image length check is hack atm
             for playlist in sp.current_user_playlists(offset=0,limit=50)['items']:
                 if playlist['tracks']['total'] > 0 and len(playlist['images']) > 0:
                     user_playlists.append({'cover_image': playlist['images'][0]['url'], 'name': playlist['name'], 'id': playlist['id']})
@@ -348,6 +350,14 @@ def playlist_info():
 @application.errorhandler(404)
 def page_not_found(error):
     return render_template('page_not_found.html'), 404
+
+
+@application.route('/privacy', methods=['GET'])
+def privacy_page():
+    '''
+    Privacy Policy Page
+    '''
+    return render_template('privacy.html')
 
 
 # uncomment below to run app.py locally without WSGI engine

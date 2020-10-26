@@ -1,0 +1,9 @@
+#profile-links a:link {
+  color: #aaaaaa;
+}
+#profile-links a:visited {
+  color: #aaaaaa;
+}
+#profile-links a:hover{
+  color: #949494;
+}
