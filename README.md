@@ -15,7 +15,7 @@ Stay tuned for updates.
 
 ![Spotify Playlist Stats](https://i.imgur.com/1KCOecm.png "Spotify Playlist Stats")
 
-# Usage:
+# Usage
 
 Create a file named secrets.py at the root of the project folder (alongside app.py) containing the following lines:
 
