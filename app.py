@@ -98,7 +98,7 @@ def before_request():
     try:
         latest_access = db.session.query(PageViews).filter_by(ip_address=client_IP).order_by(PageViews.time_stamp.desc()).first()
 
-    except SQLAlchemyError:
+    except exc:
         print("DB connection failed. Skipping visit tracking.")
         return
 
